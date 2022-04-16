@@ -1,7 +1,6 @@
 package com.deskconn.nfcreaddata;
 
 import android.app.PendingIntent;
-import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.nfc.FormatException;
@@ -13,6 +12,7 @@ import android.nfc.tech.Ndef;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -26,44 +26,41 @@ public class ReadAndWriteTag extends AppCompatActivity {
     public static final String ERROR_DETECTED = "No NFC tag detected";
     public static final String WRITE_SUCCESS = "Text written successfully!";
     public static final String WRITE_ERROR = "Error during writing, Try again!";
-    NfcAdapter nfcAdapter;
-    PendingIntent pendingIntent;
-    IntentFilter[] writingTagFilter;
-    boolean writeMode;
-    Tag myTag;
-    Context context;
-    TextView editText;
-    TextView textView;
-    Button button;
+    private NfcAdapter nfcAdapter;
+    private PendingIntent pendingIntent;
+    private IntentFilter[] writingTagFilter;
+    private Tag myTag;
+    private EditText editText;
+    private TextView textView;
+    private Button button;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_read_and_write_tag);
 
-        editText = (TextView) findViewById(R.id.edit_text);
+        editText = findViewById(R.id.edit_text);
         textView = findViewById(R.id.textview);
         button = findViewById(R.id.button);
-        context = this;
 
         button.setOnClickListener(view -> {
             try {
                 if (myTag == null) {
-                    Toast.makeText(context, ERROR_DETECTED, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, ERROR_DETECTED, Toast.LENGTH_SHORT).show();
                 } else {
                     write(editText.getText().toString(), myTag);
-                    Toast.makeText(context, WRITE_SUCCESS, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, WRITE_SUCCESS, Toast.LENGTH_SHORT).show();
                     editText.setText("");
                 }
             } catch (Exception e) {
                 System.out.println("here  " + e);
-                Toast.makeText(context, WRITE_ERROR + e, Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, WRITE_ERROR + e, Toast.LENGTH_SHORT).show();
             }
         });
 
-        nfcAdapter = NfcAdapter.getDefaultAdapter(context);
+        nfcAdapter = NfcAdapter.getDefaultAdapter(this);
         if (nfcAdapter == null) {
-            Toast.makeText(context, "This device not support NFC. ", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "This device not support NFC. ", Toast.LENGTH_SHORT).show();
             finish();
         }
 
@@ -133,7 +130,6 @@ public class ReadAndWriteTag extends AppCompatActivity {
     }
 
     private void writeModeOff() {
-        writeMode = false;
         nfcAdapter.disableForegroundDispatch(this);
     }
 
@@ -145,7 +141,6 @@ public class ReadAndWriteTag extends AppCompatActivity {
     }
 
     private void writeModeOn() {
-        writeMode = true;
         nfcAdapter.enableForegroundDispatch(this, pendingIntent, writingTagFilter, null);
     }
 
